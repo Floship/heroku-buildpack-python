@@ -156,13 +156,12 @@ function uv::install_dependencies() {
 	local install_log
 	install_log=$(mktemp)
 
-	# TODO: Expose app config vars to the install command as part of doing so for all package managers.
-	# `--compile-bytecode`: Improves app boot times (pip does this by default).
+	# Bytecode compilation is left to uv's project configuration (``tool.uv.compile-bytecode``)
+	# and ``UV_COMPILE_BYTECODE`` so an app can opt out instead of compiling a tree it discards.
 	# shellcheck disable=SC2310 # This function is invoked in an 'if' condition so set -e will be disabled.
 	if ! {
 		"${uv_install_command[@]}" \
 			--color always \
-			--compile-bytecode \
 			--no-progress \
 			|& tee "${install_log}" \
 			|& output::indent

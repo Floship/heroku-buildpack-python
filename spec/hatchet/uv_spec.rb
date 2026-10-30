@@ -18,7 +18,6 @@ RSpec.describe 'uv support' do
           remote:        Resolved .+ packages in .+s
           remote:        Prepared 1 package in .+s
           remote:        Installed 1 package in .+s
-          remote:        Bytecode compiled 1 file in .+s
           remote:         \\+ typing-extensions==4.15.0
           remote: -----> Running bin/post_compile hook
           remote:        BUILD_DIR=/tmp/build_.+
@@ -91,6 +90,8 @@ RSpec.describe 'uv support' do
           remote: \\}
         REGEX
 
+        expect(clean_output(app.output)).not_to include('Bytecode compiled')
+
         app.commit!
         app.push!
         expect(clean_output(app.output)).to match(Regexp.new(<<~REGEX, Regexp::MULTILINE))
@@ -101,12 +102,13 @@ RSpec.describe 'uv support' do
           remote: -----> Using cached uv #{UV_VERSION}
           remote: -----> Installing dependencies using 'uv sync --locked --no-default-groups'
           remote:        Resolved .+ packages in .+s
-          remote:        Bytecode compiled 1 file in .+s
           remote: -----> Running bin/post_compile hook
           remote:        .+
           remote: -----> Saving cache
           remote: -----> Inline app detected
         REGEX
+
+        expect(clean_output(app.output)).not_to include('Bytecode compiled')
 
         command = 'bin/print-env-vars.sh && if command -v uv; then echo "uv unexpectedly found!" && exit 1; fi'
         expect(normalize_trailing_newlines(app.run(command))).to eq(<<~OUTPUT)
@@ -153,11 +155,12 @@ RSpec.describe 'uv support' do
           remote:        Resolved .+ packages in .+s
           remote:        Prepared 1 package in .+s
           remote:        Installed 1 package in .+s
-          remote:        Bytecode compiled 1 file in .+s
           remote:         \\+ typing-extensions==4.15.0
           remote: -----> Saving cache
           remote: -----> Discovering process types
         REGEX
+
+        expect(clean_output(app.output)).not_to include('Bytecode compiled')
       end
     end
   end
